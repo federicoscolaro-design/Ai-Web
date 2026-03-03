@@ -112,7 +112,7 @@ const Section2Calibration: React.FC<{ onComplete: () => void }> = ({ onComplete 
           >
             What is the weight of your current reality?
           </motion.h2>
-          <div className="relative w-full h-64">
+          <div className="relative w-full h-64 md:h-64 flex flex-wrap justify-center items-center gap-4 md:block">
             {options.map((opt, i) => (
               <motion.button
                 key={opt}
@@ -120,10 +120,10 @@ const Section2Calibration: React.FC<{ onComplete: () => void }> = ({ onComplete 
                 animate={{ opacity: 1 }}
                 whileHover={{ scale: 1.1, color: "#39FF14" }}
                 onClick={handleSelect}
-                className="absolute serif-tiny uppercase text-black italic"
+                className="md:absolute serif-tiny uppercase text-black italic p-2"
                 style={{
-                  top: `${Math.random() * 80}%`,
-                  left: `${Math.random() * 80}%`,
+                  top: typeof window !== 'undefined' && window.innerWidth > 768 ? `${Math.random() * 80}%` : undefined,
+                  left: typeof window !== 'undefined' && window.innerWidth > 768 ? `${Math.random() * 80}%` : undefined,
                 }}
               >
                 {opt}
@@ -153,14 +153,15 @@ const Section3Catalog: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
   ];
 
   return (
-    <div className="section bg-white p-20">
-      <div className="grid grid-cols-3 gap-8 w-full max-w-6xl relative">
+    <div className="section bg-white p-4 md:p-20">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 w-full max-w-6xl relative overflow-y-auto md:overflow-visible py-10 md:py-0">
         {destinations.map((dest, i) => (
           <motion.div
             key={dest.id}
-            className="relative aspect-[3/4] overflow-hidden group"
+            className="relative aspect-[3/4] overflow-hidden group cursor-pointer"
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
+            onClick={() => setHovered(hovered === i ? null : i)}
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.2 }}
@@ -174,7 +175,7 @@ const Section3Catalog: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
                 filter: hovered === i ? "grayscale(1) contrast(200%)" : "grayscale(0.5)",
               }}
             />
-            <div className="absolute top-4 left-4 font-mono text-xl bg-white text-black px-2">
+            <div className="absolute top-4 left-4 font-mono text-lg md:text-xl bg-white text-black px-2 z-10">
               {dest.title}
             </div>
             
@@ -184,17 +185,29 @@ const Section3Catalog: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
                   initial={{ x: "100%" }}
                   animate={{ x: 0 }}
                   exit={{ x: "100%" }}
-                  className="absolute inset-y-0 right-0 w-1/2 bg-black text-white p-6 flex flex-col justify-center"
+                  className="absolute inset-0 md:inset-y-0 md:right-0 md:left-auto w-full md:w-1/2 bg-black/90 md:bg-black text-white p-6 flex flex-col justify-center z-20"
                 >
-                  <div className="serif-tiny mb-4 uppercase italic">Physics Report</div>
-                  <div className="font-mono text-sm leading-relaxed">
+                  <div className="serif-tiny mb-4 uppercase italic text-white/60">Physics Report</div>
+                  <div className="font-mono text-sm leading-relaxed mb-8">
                     {dest.physics}
                   </div>
                   <button 
-                    onClick={onComplete}
-                    className="mt-8 border border-white/30 p-2 serif-tiny uppercase hover:bg-white hover:text-black transition-colors italic"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onComplete();
+                    }}
+                    className="w-full border border-white/30 p-4 md:p-2 serif-tiny uppercase hover:bg-white hover:text-black transition-colors italic bg-white/10 md:bg-transparent"
                   >
                     Select Coordinate
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setHovered(null);
+                    }}
+                    className="mt-4 md:hidden text-[10px] uppercase opacity-50 underline"
+                  >
+                    Close
                   </button>
                 </motion.div>
               )}
@@ -222,14 +235,16 @@ const Section4BoardingPass: React.FC<{ onComplete: () => void }> = ({ onComplete
   };
 
   return (
-    <div className={`section transition-colors duration-75 ${isFlickering ? 'bg-black' : 'bg-white'}`}>
+    <div className={`section transition-colors duration-75 justify-start md:justify-center pt-20 md:pt-0 p-6 ${isFlickering ? 'bg-black' : 'bg-white'}`}>
       <AnimatePresence mode="wait">
         {!isSubmitted ? (
           <motion.form
             key="form"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
             onSubmit={handleSubmit}
-            className="w-full max-w-md space-y-12"
+            className="w-full max-w-md space-y-8 md:space-y-12"
           >
             <div className="space-y-2">
               <label className="serif-tiny uppercase block text-black italic">Designated Avatar Name</label>
@@ -237,7 +252,7 @@ const Section4BoardingPass: React.FC<{ onComplete: () => void }> = ({ onComplete
                 type="text"
                 required
                 onInput={handleInput}
-                className="w-full bg-transparent border-b-4 border-black font-mono text-4xl outline-none py-2 text-black"
+                className="w-full bg-transparent border-b-2 md:border-b-4 border-black font-mono text-2xl md:text-4xl outline-none py-2 text-black"
               />
             </div>
             <div className="space-y-4">
@@ -249,7 +264,7 @@ const Section4BoardingPass: React.FC<{ onComplete: () => void }> = ({ onComplete
                 step="0.001"
                 className="w-full accent-black"
               />
-              <div className="flex justify-between font-mono text-xs text-black">
+              <div className="flex justify-between font-mono text-[10px] text-black">
                 <span>0.001%</span>
                 <span>0.499%</span>
               </div>
@@ -261,7 +276,7 @@ const Section4BoardingPass: React.FC<{ onComplete: () => void }> = ({ onComplete
                 color: ["#39FF14", "#000000", "#39FF14"],
                 transition: { repeat: Infinity, duration: 0.3 }
               }}
-              className="w-full bg-black text-neon-green font-mono text-2xl py-6 border-2 border-neon-green"
+              className="w-full bg-black text-neon-green font-mono text-xl md:text-2xl py-4 md:py-6 border-2 border-neon-green"
             >
               INITIATE TRANSFER
             </motion.button>
@@ -271,9 +286,9 @@ const Section4BoardingPass: React.FC<{ onComplete: () => void }> = ({ onComplete
             key="success"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center space-y-4"
+            className="text-center space-y-4 pt-20 md:pt-0"
           >
-            <div className="font-mono text-4xl text-black">Departure locked.</div>
+            <div className="font-mono text-2xl md:text-4xl text-black">Departure locked.</div>
             <div className="serif-tiny uppercase text-black italic">Pack lightly.</div>
           </motion.div>
         )}
@@ -286,11 +301,17 @@ const Section5Risk: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const legalText = Array(100).fill("BY INITIATING THIS TRANSFER YOU ACKNOWLEDGE THE TOTAL DISSOLUTION OF YOUR CURRENT BIOLOGICAL IDENTITY. THE AGENCY IS NOT RESPONSIBLE FOR TEMPORAL LOOPS, SPONTANEOUS COMBUSTION, OR THE LOSS OF MEMORY REGARDING THE CONCEPT OF 'HOME'. ").join(" ");
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHoveringAccept, setIsHoveringAccept] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    setIsTouch('ontouchstart' in window);
+  }, []);
 
   return (
     <div 
-      className="section bg-white overflow-hidden p-10"
+      className="section bg-white overflow-hidden p-6 md:p-10"
       onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
+      onTouchMove={(e) => setMousePos({ x: e.touches[0].clientX, y: e.touches[0].clientY })}
     >
       <div className="relative w-full h-full">
         {/* Background: Tiny unreadable text */}
@@ -298,9 +319,9 @@ const Section5Risk: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
           {legalText}
         </div>
         
-        {/* Foreground: Readable text revealed by cursor */}
+        {/* Foreground: Readable text revealed by cursor/touch */}
         <div 
-          className="absolute inset-0 text-lg font-mono text-black break-words select-none pointer-events-none"
+          className="absolute inset-0 text-sm md:text-lg font-mono text-black break-words select-none pointer-events-none"
           style={{
             clipPath: `circle(${isHoveringAccept ? 64 : 40}px at ${mousePos.x}px ${mousePos.y}px)`,
           }}
@@ -313,15 +334,15 @@ const Section5Risk: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
           onClick={onComplete}
           onMouseEnter={() => setIsHoveringAccept(true)}
           onMouseLeave={() => setIsHoveringAccept(false)}
-          className="absolute top-[60%] left-[40%] text-red-600 font-bold text-xs hover:scale-150 transition-transform z-10"
+          className="absolute top-[60%] left-[30%] md:left-[40%] text-red-600 font-bold text-xs hover:scale-150 transition-transform z-10 p-4"
           style={{ textShadow: "0 0 10px rgba(255,0,0,0.5)" }}
         >
           ACCEPT
         </button>
       </div>
       
-      <div className="absolute bottom-10 left-10 serif-tiny uppercase text-black italic">
-        Scan for liability release
+      <div className="absolute bottom-10 left-6 md:left-10 serif-tiny uppercase text-black italic">
+        {isTouch ? "Touch to reveal release" : "Scan for liability release"}
       </div>
     </div>
   );
@@ -437,6 +458,7 @@ const Section6Echoes: React.FC<{ onReset: () => void }> = ({ onReset }) => {
 export default function App() {
   const [section, setSection] = useState(0);
   const [resetKey, setResetKey] = useState(0);
+  const touchStart = useRef<number | null>(null);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
@@ -447,8 +469,49 @@ export default function App() {
       }
     };
 
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStart.current = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (touchStart.current === null) return;
+      
+      // Don't swipe if we're inside a scrollable element that can still scroll
+      const target = e.target as HTMLElement;
+      const scrollable = target.closest('.overflow-y-auto');
+      if (scrollable) {
+        const isAtTop = scrollable.scrollTop <= 0;
+        const isAtBottom = scrollable.scrollHeight - scrollable.scrollTop <= scrollable.clientHeight + 1;
+        const touchEnd = e.changedTouches[0].clientY;
+        const diff = touchStart.current - touchEnd;
+        
+        // If scrolling up at top or down at bottom, allow section change
+        if (diff > 0 && !isAtBottom) return; 
+        if (diff < 0 && !isAtTop) return;
+      }
+
+      const touchEnd = e.changedTouches[0].clientY;
+      const diff = touchStart.current - touchEnd;
+
+      if (Math.abs(diff) > 70) {
+        if (diff > 0) {
+          setSection(s => Math.min(s + 1, 5));
+        } else {
+          setSection(s => Math.max(s - 1, 0));
+        }
+      }
+      touchStart.current = null;
+    };
+
     window.addEventListener("wheel", handleWheel);
-    return () => window.removeEventListener("wheel", handleWheel);
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchend", handleTouchEnd);
+    
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
   }, []);
 
   const reset = () => {

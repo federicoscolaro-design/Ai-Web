@@ -6,6 +6,7 @@ export default function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
   const [targetType, setTargetType] = useState<string | null>(null);
+  const [isTouch, setIsTouch] = useState(false);
 
   // Spring physics for the outer ring to create a "lagging" effect
   const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
@@ -13,19 +14,29 @@ export default function CustomCursor() {
   const springY = useSpring(0, springConfig);
 
   useEffect(() => {
-    const move = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY });
-      springX.set(e.clientX);
-      springY.set(e.clientY);
+    const checkTouch = () => {
+      setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+    checkTouch();
+
+    const move = (e: MouseEvent | TouchEvent) => {
+      const x = 'clientX' in e ? e.clientX : e.touches[0].clientX;
+      const y = 'clientY' in e ? e.clientY : e.touches[0].clientY;
       
-      const target = e.target as HTMLElement;
-      const isInteractive = target.closest('button, input, a, [role="button"], .group');
-      setIsHovering(!!isInteractive);
+      setPos({ x, y });
+      springX.set(x);
+      springY.set(y);
       
-      if (isInteractive) {
-        setTargetType(target.tagName.toLowerCase());
-      } else {
-        setTargetType(null);
+      const target = document.elementFromPoint(x, y) as HTMLElement;
+      if (target) {
+        const isInteractive = target.closest('button, input, a, [role="button"], .group');
+        setIsHovering(!!isInteractive);
+        
+        if (isInteractive) {
+          setTargetType(target.tagName.toLowerCase());
+        } else {
+          setTargetType(null);
+        }
       }
     };
 
@@ -33,15 +44,21 @@ export default function CustomCursor() {
     const mouseUp = () => setIsClicking(false);
 
     window.addEventListener("mousemove", move);
+    window.addEventListener("touchstart", move);
+    window.addEventListener("touchmove", move);
     window.addEventListener("mousedown", mouseDown);
     window.addEventListener("mouseup", mouseUp);
     
     return () => {
       window.removeEventListener("mousemove", move);
+      window.removeEventListener("touchstart", move);
+      window.removeEventListener("touchmove", move);
       window.removeEventListener("mousedown", mouseDown);
       window.removeEventListener("mouseup", mouseUp);
     };
   }, [springX, springY]);
+
+  // We keep it visible on touch to match desktop "feel"
 
   return (
     <>
